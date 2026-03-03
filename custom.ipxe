@@ -1,12 +1,22 @@
 #!ipxe
-###
-### netboot.xyz-custom menu
-###
+set base https://ubuntu.pennsylvaniaturnpike.org/
 
-:start
-echo Hello world!
-sleep 10
-goto custom_exit
+:custom_menu
+menu GLBX Custom Menu
+item --gap --        Ubuntu Autoinstall
+item glbx-ubuntu     GLBX Ubuntu (autoinstall)
+item --gap --        Actions
+item shell           iPXE shell
+choose --default glbx-ubuntu --timeout 5000 target || goto shell
+goto ${target}
 
-:custom_exit
-exit 0
+:glbx-ubuntu
+echo Booting GLBX Ubuntu Autoinstall...
+kernel ${base}/iso/casper/vmlinuz initrd=initrd ip=dhcp autoinstall \
+  ds=nocloud-net;s=${base}/autoinstall/ubuntu/base/ \
+  url=${base}/iso/ubuntu-24.04-live-server-amd64.iso
+initrd ${base}/iso/casper/initrd
+boot
+
+:shell
+shell
